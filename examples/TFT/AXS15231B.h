@@ -4,7 +4,7 @@
 #include "pins_config.h"
 #include "lvgl.h"/* https://github.com/lvgl/lvgl.git */
 
-#define LCD_SPI_DMA 
+// #define LCD_SPI_DMA 
 #define AX15231B
 
 #define TFT_MADCTL 0x36
