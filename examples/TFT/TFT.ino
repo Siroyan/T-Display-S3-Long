@@ -1,11 +1,6 @@
 #include "AXS15231B.h"
 #include <Arduino.h>
 
-extern uint8_t test1_180640_map[];
-extern uint8_t test2_180640_map[];
-extern uint8_t test3_180640_map[];
-extern uint8_t test4_180640_map[];
-
 bool result = false;
 void setup() {
     Serial.begin(115200);
@@ -16,41 +11,26 @@ void setup() {
 
     axs15231_init();
 
-    lcd_PushColors(0, 0, 180, 640, (uint16_t *)test1_180640_map);
-
     Serial.println("end\n");
 }
 
 extern uint32_t transfer_num;
 extern size_t lcd_PushColors_len;
-int cont = 0;
+
+#define RECT_W 24
+#define RECT_H 100
+
+bool first_flag = true;
+
 void loop() {
+    if (first_flag) {
+        uint16_t data1[RECT_W * RECT_H];
+        for (uint16_t i = 0; i < sizeof(data1)/sizeof(data1[0]); i++) {
+            data1[i] = 0b1111100000000000;
+        }
+        lcd_PushColors(0, 0, RECT_W, RECT_H, (uint16_t *)data1);
+        first_flag = false;
+    }
+    
     delay(1);
-    cont++;
-
-    if(cont >= 12000)
-        cont = 0;
-
-    if (transfer_num <= 0 && lcd_PushColors_len <= 0)
-    {
-        #ifdef LCD_SPI_DMA
-            char i = 0;
-            while (get_lcd_spi_dma_write())
-            {
-                i = i >> 1;
-                lcd_PushColors(0, 0, 0, 0, NULL);
-            }
-        #endif
-
-        if(cont == 0)
-            lcd_PushColors(0, 0, 180, 640, (uint16_t *)test1_180640_map);
-        else if(cont == 4000)
-            lcd_PushColors(0, 0, 180, 640, (uint16_t *)test2_180640_map);
-        else if(cont == 8000)
-            lcd_PushColors(0, 0, 180, 640, (uint16_t *)test3_180640_map);
-    }
-
-    if (transfer_num <= 1 && lcd_PushColors_len > 0) {
-        lcd_PushColors(0, 0, 0, 0, NULL);
-    }
 }
